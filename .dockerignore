@@ -1,0 +1,7 @@
+.venv
+__pycache__
+*.gguf
+*.ipynb
+chroma
+chroma_data
+*.log

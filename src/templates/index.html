@@ -1,0 +1,95 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note-Taking App</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin: 5px;
+        }
+
+        #responses {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Note-Taking App</h1>
+
+    <div>
+        <input type="text" id="username_input" placeholder="Enter your username">
+        <button onclick="setUsername()">Set Username</button>
+        <div id="user_greetings"></div>
+
+        <div>
+            <input type="text" id="note_input" placeholder="Insert a note">
+            <button onclick="insertNote()">Add Note</button>
+        </div>
+
+        <div>
+            <input type="number" id="last_n_input" placeholder="Number of recent notes">
+            <button onclick="getLastNNotes()">Get Recent Notes</button>
+            <div id="recent_notes"></div>
+        </div>
+
+        <div>
+            <input type="text" id="query_input" placeholder="Ask a question">
+            <button onclick="searchNotes()">Ask</button>
+            <div id="query_response"></div>
+        </div>
+
+        <script>
+            function setUsername() {
+                const username = document.getElementById('username_input').value;
+                fetch('/set_username', {
+                    method: 'POST',
+                    body: new URLSearchParams(`username=${username}`)
+                }).then(response => response.json())
+                    .then(data => {
+                        document.getElementById('user_greetings').innerHTML = data.username;
+                    });
+            }
+            function insertNote() {
+                const note = document.getElementById('note_input').value;
+                fetch('/insert_note', {
+                    method: 'POST',
+                    body: new URLSearchParams(`note=${note}`)
+                }).then(response => response.json());
+            }
+
+            function getLastNNotes() {
+                const n = document.getElementById('last_n_input').value;
+                fetch('/get_recent_notes', {
+                    method: 'POST',
+                    body: new URLSearchParams(`n=${n}`)
+                }).then(response => response.json())
+                    .then(data => {
+                        document.getElementById('recent_notes').innerHTML = data.last_notes.join("<br>");
+                    });
+            }
+
+            function searchNotes() {
+                const query = document.getElementById('query_input').value;
+                fetch('/search', {
+                    method: 'POST',
+                    body: new URLSearchParams(`query=${query}`)
+                }).then(response => response.json())
+                    .then(data => {
+                        document.getElementById('query_response').innerText = data.response;
+                    });
+            }
+        </script>
+</body>
+
+</html>

@@ -1,6 +1,7 @@
 .venv
 __pycache__
 *.gguf
+resources
 *.ipynb
 chroma
 chroma_data

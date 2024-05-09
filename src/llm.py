@@ -1,21 +1,20 @@
 from typing import List
 from llama_cpp import Llama
 
-# Set gpu_layers to the number of layers to offload to GPU. Set to 0 if no GPU acceleration is available on your system.
 
 
 class LLM:
     def __init__(self):
         self.llm = Llama(
             model_path="resources/Llama-3-8B-Instruct-Gradient-1048k.Q5_K_M.gguf",  # IQ4_XS
-            n_ctx=2048,  # The max sequence length to use - note that longer sequence lengths require much more resources
-            n_threads=8,  # The number of CPU threads to use, tailor to your system and the resulting performance
-            n_gpu_layers=30,  # The number of layers to offload to GPU, if you have GPU acceleration available
-            chat_format="llama-3",  # Set chat_format according to the model you are using
+            n_ctx=2048, 
+            n_threads=8, # Optimal
+            chat_format="llama-3",
             use_mlock=True,
+            use_mmap=True # Otherwise - all weights will be fitted in RAM, but with not much speed gain
         )
 
-    def rag_reply(self, message: str, notes: List):
+    def reply(self, message: str, notes: List):
 
         formatted_notes = ", ".join(notes)
 
@@ -28,7 +27,6 @@ class LLM:
                 {
                     "role": "user",
                     "content": f"Please analyze the following text:{formatted_notes}",
-                    # "content": f"{message}. Base your answer on following information: {formatted_notes}",
                 },
                 {
                     "role": "assistant",
@@ -46,6 +44,10 @@ Please provide your SPECIFIC COMMAND or QUESTION regarding how you would like me
                 },
                 {"role": "user", "content": message},
             ],
-            temperature=0.1,
+            temperature=0.05,
+            top_p=0.9,
+            presence_penalty=0.1
         )
-        return output["choices"][0]["message"]["content"]
+        output = output["choices"][0]["message"]["content"]
+        output = output.replace("</s>", "")
+        return output

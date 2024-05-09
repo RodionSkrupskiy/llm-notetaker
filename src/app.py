@@ -7,7 +7,10 @@ from db.client import DB
 app = Flask(__name__)
 
 
-def setup_db():
+def create_test_user(collection):
+    """
+        Sets up the test user <admin> and add 15 notes
+    """
     notes = [
         "Meeting with Board of Directors at 10 AM - Discuss quarterly financials and new strategic initiatives.",
         "Client Lunch Meeting - Book a table at the downtown restaurant. Confirm with the client.",
@@ -25,7 +28,7 @@ def setup_db():
         "Office Renovation Planning - Consult with the design team about new office layout and color schemes.",
         "Research New Business Opportunities - Explore potential markets and identify growth prospects for the next fiscal year.",
     ]
-    # Example of query: Get info about all meetings
+    # Example of queries: Get info about all meetings/What meeting do I need to attend at ten o'clock
     for note in notes:
         add_data(collection, note, "admin")
 
@@ -37,7 +40,6 @@ def home():
 
 @app.route("/set_username", methods=["POST"])
 def set_username():
-    global username
     username = request.form.get("username")
     return jsonify({"username": f"Hello {username}!"})
 
@@ -45,6 +47,7 @@ def set_username():
 @app.route("/insert_note", methods=["POST"])
 def insert_note():
     note = request.form.get("note")
+    username = request.form.get("username")
     add_data(collection, note, username)
     return jsonify({"status": "Note added", "note": note})
 
@@ -52,18 +55,20 @@ def insert_note():
 @app.route("/get_recent_notes", methods=["POST"])
 def get_recent_notes():
     n = int(request.form.get("n"))
+    username = request.form.get("username")
     last_notes = get_recent(collection, n, username)[::-1]
-    last_notes_str = []
+    last_notes_formatted = []
     for i, note in enumerate(last_notes):
-        last_notes_str.extend([f" {i+1}. " + note.replace("\n", "<br>")])
-    return jsonify({"last_notes": last_notes_str})
+        last_notes_formatted.extend([f" {i+1}. " + note.replace("\n", "<br>")])
+    return jsonify({"last_notes": last_notes_formatted})
 
 
 @app.route("/search", methods=["POST"])
 def search():
     message = request.form.get("query")
+    username = request.form.get("username")
     notes = get_data(collection, message, username)["documents"][0]
-    response = llm.rag_reply(message, notes)
+    response = llm.reply(message, notes)
     return jsonify({"response": response})
 
 
@@ -71,7 +76,7 @@ if __name__ == "__main__":
 
     db = DB()
     collection = db.get_collection("personal_assistant")
-    setup_db()
+    create_test_user(collection)
 
     llm = LLM()
     app.run(debug=True, host="0.0.0.0", port=5000)

@@ -7,11 +7,8 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-RUN pip install pysqlite3-binary
-RUN python download_resources.py
-
-RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 RUN pip install -r requirements.txt
+RUN python download_resources.py
 
 
 EXPOSE 5000

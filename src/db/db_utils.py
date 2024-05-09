@@ -32,19 +32,3 @@ def get_recent(collection, N, username):
         include=["documents"],
     )["documents"]
     return recent[-N:]
-
-
-# def remove_punctuation(text):
-#     punct_str = string.punctuation
-#     punct_str = punct_str.replace("'", "")
-#     return text.translate(str.maketrans("", "", punct_str))
-
-# def remove_stopwords(text):
-#     text = ' '.join(word for word in text.split(' ') if word not in stop_words)
-#     return text
-
-# def search_cleaner(text):
-#     new_text = text.lower()
-#     new_text = remove_stopwords(new_text)
-#     new_text = remove_punctuation(new_text)
-#     return new_text
